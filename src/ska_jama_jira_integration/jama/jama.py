@@ -5,14 +5,14 @@ test cases.
 
 import pandas as pd
 
-from jama.jama_inferface import (
+from ska_jama_jira_integration.jama.jama_inferface import (
     get_l0_requirements,
     get_l1_requirements,
     get_l2_requirements,
     get_test_cases,
 )
-from ska_jama_jira_integration.jama.transformers import *
-from models.field_mapping import get_field_mapping
+from ska_jama_jira_integration.jama.transformers import *  # noqa: E501 F403 F401 # pylint: disable=W0401 W0614
+from ska_jama_jira_integration.models.field_mapping import get_field_mapping
 
 
 def get_field_value(document: dict, jama_key: str, transformer: callable = None):
@@ -55,20 +55,20 @@ def get_jama_requirements(level: str, product: str) -> pd.DataFrame:
 
     # Retrieve data based on the requirement level
     if level == "L0":
-        data = get_l0_requirements()
+        requirements = get_l0_requirements()
     elif level == "L1":
-        data = get_l1_requirements()
+        requirements = get_l1_requirements()
     elif level == "L2":
-        data = get_l2_requirements(product)
+        requirements = get_l2_requirements(product)
     else:
         raise ValueError(f"Unsupported level: {level}")
 
-    if data is None:
+    if requirements is None:
         raise ValueError("Failed to retrieve data from Jama.")
 
     # Extract data using field mappings
-    extracted_data = []
-    for document in data:
+    extracted_requirements = []
+    for document in requirements:
         extracted_document = {}
         for field in field_mappings:
             field_name = field["name"]
@@ -78,9 +78,9 @@ def get_jama_requirements(level: str, product: str) -> pd.DataFrame:
                 document, jama_key, transformer
             )
         extracted_document["component"] = product
-        extracted_data.append(extracted_document)
+        extracted_requirements.append(extracted_document)
 
-    return pd.DataFrame(extracted_data)
+    return pd.DataFrame(extracted_requirements)
 
 
 def get_jama_test_cases() -> pd.DataFrame:
@@ -92,14 +92,14 @@ def get_jama_test_cases() -> pd.DataFrame:
     """
     # Load field mappings from YAML file
     field_mappings = get_field_mapping("test_case")
-    data = get_test_cases()
+    test_cases = get_test_cases()
 
-    if data is None:
+    if test_cases is None:
         raise ValueError("Failed to retrieve data from Jama.")
 
     # Extract data using field mappings
-    extracted_data = []
-    for document in data:
+    extracted_test_cases = []
+    for document in test_cases:
         extracted_document = {}
         for field in field_mappings:
             field_name = field["name"]
@@ -108,6 +108,6 @@ def get_jama_test_cases() -> pd.DataFrame:
             extracted_document[field_name] = get_field_value(
                 document, jama_key, transformer
             )
-        extracted_data.append(extracted_document)
+        extracted_test_cases.append(extracted_document)
 
-    return pd.DataFrame(extracted_data)
+    return pd.DataFrame(extracted_test_cases)

@@ -9,9 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from ska_jama_jira_integration.services.synchronize import (
-    sync_l1,
-)  # noqa: E402
+from ska_jama_jira_integration.services.synchronize import sync_l1  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
