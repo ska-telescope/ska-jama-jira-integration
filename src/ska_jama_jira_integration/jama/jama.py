@@ -5,7 +5,7 @@ test cases.
 
 import pandas as pd
 
-from ska_jama_jira_integration.jama.jama_inferface import (
+from ska_jama_jira_integration.jama.jama_interface import (
     get_l0_requirements,
     get_l1_requirements,
     get_l2_requirements,

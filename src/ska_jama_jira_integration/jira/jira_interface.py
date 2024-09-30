@@ -8,8 +8,11 @@ import os
 from typing import Any, Dict, List, Optional
 
 import requests
+from dotenv import load_dotenv
 
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
+
+load_dotenv()
 
 # Get and validate environment variables
 JIRA_TOKEN = os.getenv("JIRA_TOKEN")
