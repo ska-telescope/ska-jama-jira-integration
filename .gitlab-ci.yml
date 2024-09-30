@@ -1,0 +1,26 @@
+default:
+  image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+
+stages:
+  - lint
+  - build
+  - test
+  - deploy
+  - integration
+  - staging
+  - publish
+  - pages
+  - scan
+
+
+include:
+  # Python
+  - project: "ska-telescope/templates-repository"
+    file: "gitlab-ci/includes/python.gitlab-ci.yml"
+    # .post step finalisers eg: badges
+  - project: "ska-telescope/templates-repository"
+    file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
