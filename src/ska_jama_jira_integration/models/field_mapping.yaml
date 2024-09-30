@@ -1,0 +1,65 @@
+requirement_fields:
+  - name: id
+    jama_key: id
+  - name: jama_id
+    jama_key: documentKey
+    jira_key: fields.customfield_12133
+  - name: name
+    jama_key: fields.name
+    jira_key: fields.summary
+  - name: description
+    jama_key: fields.description
+    transformer: parse_html
+    jira_key: fields.description
+  - name: status
+    jama_key: fields.status
+    transformer: lookup_status
+  - name: verification_method
+    jama_key: fields.verification$1090
+    jira_key: fields.customfield_12149
+  - name: verification_milestone
+    jama_key: fields.verification_milestone$1090
+    transformer: get_milestones
+    jira_key: fields.customfield_15502
+  - name: rationale
+    jama_key: fields.requirement_rationale$1090
+    transformer: parse_html
+    jira_key: fields.customfield_12137
+  - name: category
+    jama_key: fields.category$1090
+    jira_key: fields.customfield_12144
+  - name: allocation
+    jama_key: fields.allocation_to$1090
+    jir_key: fields.customfield_16206
+  - name: compliance
+    jama_key: fields.compliant$1090
+    transformer: lookup_compliances
+    jira_key: fields.customfield_12142
+  - name: compliance_rationale
+    jama_key: fields.compliance_rationale$1090
+    transformer: parse_html
+    jira_key: fields.customfield_12143
+  - name: tags
+    jama_key: fields.tag$1090
+
+test_case_fields:
+  - name: id
+    jama_key: id
+  - name: jama_id
+    jama_key: documentKey
+    jira_key: fields.customfield_12133
+  - name: name
+    jama_key: fields.name
+    jira_key: fields.summary
+  - name: description
+    jama_key: fields.description
+    transformer: parse_html
+    jira_key: fields.description
+  - name: verification_milestone
+    jama_key: fields.milestone$1091
+    transformer: lookup_milestones
+    jira_key: fields.customfield_15502
+  - name: test
+    jama_key: fields.testCaseSteps
+    transformer: get_test_case
+    jira_key: fields.customfield_14811

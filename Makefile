@@ -21,3 +21,5 @@ include .make/base.mk
 
 dev:
 	python src/ska_jama_jira_integration/main.py
+
+PYTHON_LINE_LENGTH = 88

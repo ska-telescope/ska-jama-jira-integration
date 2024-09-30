@@ -1,0 +1,193 @@
+statuses:
+  - Status ID: 8529
+    Status: Accepted
+  - Status ID: 8527
+    Status: Proposed
+  - Status ID: 8530
+    Status: Rejected
+  - Status ID: 8531
+    Status: Unknown
+
+compliances:
+  - Compliance ID: 11226
+    Compliance: Unknown
+  - Compliance ID: 11227
+    Compliance: Compliant
+  - Compliance ID: 11228
+    Compliance: Non-Compliant
+  - Compliance ID: 11498
+    Compliance: Partially Compliant
+
+milestones:
+  - Milestone ID: 11457
+    Milestone: UNASSIGNED
+  - Milestone ID: 11458
+    Milestone: ITF LOW
+  - Milestone ID: 11459
+    Milestone: AA1 LOW
+  - Milestone ID: 11460
+    Milestone: AA2 LOW
+  - Milestone ID: 11462
+    Milestone: AA4 LOW
+  - Milestone ID: 11463
+    Milestone: AA0.5 LOW
+  - Milestone ID: 11464
+    Milestone: ITF MID
+  - Milestone ID: 11465
+    Milestone: AA1 MID
+  - Milestone ID: 11466
+    Milestone: AA2 MID
+  - Milestone ID: 11467
+    Milestone: AA3 MID
+  - Milestone ID: 11468
+    Milestone: AA4 MID
+  - Milestone ID: 11469
+    Milestone: AA0.5 MID
+  - Milestone ID: 11470
+    Milestone: Product (Proto, EM, QM, FM)
+  - Milestone ID: 11476
+    Milestone: AA* MID
+  - Milestone ID: 11477
+    Milestone: AA* LOW
+  - Milestone ID: 11493
+    Milestone: Sub-System
+  - Milestone ID: 11495
+    Milestone: SKAMPI
+  - Milestone ID: 11496
+    Milestone: LOW PSI
+  - Milestone ID: 11499
+    Milestone: AAVS3
+  - Milestone ID: 11501
+    Milestone: LOW CSP PSI
+
+allocations:
+  - Allocation ID: 11291
+    Allocation: UNASSIGNED
+  - Allocation ID: 11521
+    Allocation: SOFTWARE
+  - Allocation ID: 11292
+    Allocation: LOW INFRA
+  - Allocation ID: 11293
+    Allocation: LOW INFRA
+  - Allocation ID: 11294
+    Allocation: LOW INFRA SPATIAL
+  - Allocation ID: 11295
+    Allocation: LOW INFRA BUILDINGS
+  - Allocation ID: 11297
+    Allocation: LOW INFRA ARNET
+  - Allocation ID: 11296
+    Allocation: LOW INFRA NETWORKS
+  - Allocation ID: 11299
+    Allocation: LOW VEHICLES
+  - Allocation ID: 11300
+    Allocation: LOW CAMPS
+  - Allocation ID: 11301
+    Allocation: LOW WATER and SANITATION
+  - Allocation ID: 11302
+    Allocation: LOW BUILDINGS
+  - Allocation ID: 11303
+    Allocation: LOW CPF
+  - Allocation ID: 11304
+    Allocation: LOW RPF
+  - Allocation ID: 11305
+    Allocation: LOW SITE ALLOCATIONS
+  - Allocation ID: 11306
+    Allocation: LOW SITE MONITORING
+  - Allocation ID: 11307
+    Allocation: LOW POWER SYSTEM
+  - Allocation ID: 11308
+    Allocation: LOW ACCESS
+  - Allocation ID: 11309
+    Allocation: LOW LFAA
+  - Allocation ID: 11310
+    Allocation: LOW FIELD NODE
+  - Allocation ID: 11311
+    Allocation: LOW FIELD STATION
+  - Allocation ID: 11312
+    Allocation: LOW GROUND PLANE
+  - Allocation ID: 11313
+    Allocation: LOW ANTENNA ASSEMBLY
+  - Allocation ID: 11314
+    Allocation: LOW PaSD
+  - Allocation ID: 11480
+    Allocation: LOW PaSD (without FEM)
+  - Allocation ID: 11316
+    Allocation: LOW FNDH
+  - Allocation ID: 11317
+    Allocation: LOW FCA
+  - Allocation ID: 11315
+    Allocation: LOW SMART BOX
+  - Allocation ID: 11481
+    Allocation: LOW FEM
+  - Allocation ID: 11318
+    Allocation: LOW SPS
+  - Allocation ID: 11326
+    Allocation: LOW CSP
+  - Allocation ID: 11327
+    Allocation: LOW CBF
+  - Allocation ID: 11328
+    Allocation: LOW CSP LMC
+  - Allocation ID: 11329
+    Allocation: LOW CSP LMC HARDWARE
+  - Allocation ID: 11330
+    Allocation: LOW PSS
+  - Allocation ID: 11331
+    Allocation: LOW PSS HARDWARE
+  - Allocation ID: 11381
+    Allocation: MID DS BACKUP STRUCT
+  - Allocation ID: 11385
+    Allocation: MID SPF SYSTEM
+  - Allocation ID: 11386
+    Allocation: MID SPF B1
+  - Allocation ID: 11387
+    Allocation: MID SPF B2
+  - Allocation ID: 11388
+    Allocation: MID SPF B345
+  - Allocation ID: 11392
+    Allocation: MID SPFRx
+  - Allocation ID: 11395
+    Allocation: MID DISH LMC
+  - Allocation ID: 11396
+    Allocation: MID CSP
+  - Allocation ID: 11397
+    Allocation: MID CSP LMC
+  - Allocation ID: 11398
+    Allocation: MID CBF
+  - Allocation ID: 11400
+    Allocation: MID CBF SW
+  - Allocation ID: 11401
+    Allocation: MID PSS
+  - Allocation ID: 11404
+    Allocation: MID PST
+  - Allocation ID: 11407
+    Allocation: MID TMC
+  - Allocation ID: 11411
+    Allocation: MK LMC
+  - Allocation ID: 11417
+    Allocation: MID SAT
+  - Allocation ID: 11421
+    Allocation: MID SAT LMC
+  - Allocation ID: 11423
+    Allocation: MID SDP
+  - Allocation ID: 11527
+    Allocation: COM TMC
+  - Allocation ID: 11324
+    Allocation: LOW TMC
+  - Allocation ID: 11345
+    Allocation: LOW SDP
+  - Allocation ID: 11374
+    Allocation: MID DSH
+  - Allocation ID: 11436
+    Allocation: COM OSO
+  - Allocation ID: 11334
+    Allocation: LOW NETWORKS
+  - Allocation ID: 11339
+    Allocation: LOW SAT
+  - Allocation ID: 11359
+    Allocation: MID LINFRA
+  - Allocation ID: 11412
+    Allocation: MID NETWORKS
+  - Allocation ID: 11358
+    Allocation: MID INFRA
+  - Allocation ID: 11439
+    Allocation: COM EMS
