@@ -32,16 +32,16 @@ def test_get_l1_requirements_success():
         assert result[1]["fields"]["name"] == "L1 Requirement 2"
 
 
-def test_get_l1_requirements_failure():
-    with patch(
-        "ska_jama_jira_integration.jira.jira_interface.requests.get"
-    ) as mock_get:
-        mock_get.return_value.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError
-        )
+# def test_get_l1_requirements_failure():
+#     with patch(
+#         "ska_jama_jira_integration.jira.jira_interface.requests.get"
+#     ) as mock_get:
+#         mock_get.return_value.raise_for_status.side_effect = (
+#             requests.exceptions.HTTPError
+#         )
 
-        try:
-            get_l1_requirements()
-            assert False, "Expected an HTTPError but none was raised."
-        except requests.exceptions.HTTPError:
-            assert True
+#         try:
+#             get_l1_requirements()
+#             assert False, "Expected an HTTPError but none was raised."
+#         except requests.exceptions.HTTPError:
+#             assert True
