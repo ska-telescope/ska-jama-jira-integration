@@ -4,7 +4,7 @@ Test the JAMA functions
 
 from unittest.mock import patch
 
-from ska_jama_jira_integration.jira.jira_interface import get_l1_requirements
+from ska_jama_jira_integration.jira.api_interface import get_l1_requirements
 
 
 def test_get_l1_requirements_success():
