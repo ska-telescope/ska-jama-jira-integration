@@ -8,10 +8,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import requests
-from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
-
-load_dotenv()
 
 # Get and validate environment variables
 JAMA_BASEURL = os.getenv("JAMA_BASEURL")
