@@ -2,10 +2,10 @@
 Test the JAMA functions
 """
 
-from unittest.mock import patch
+# from unittest.mock import patch
 
-from ska_jama_jira_integration import config  # noqa: F401  # pylint: disable=W0611
-from ska_jama_jira_integration.jama.api_interface import get_l1_requirements
+# from ska_jama_jira_integration import config  # noqa: F401  # pylint: disable=W0611
+# from ska_jama_jira_integration.jama.api_interface import get_l1_requirements
 
 
 # def test_get_l1_requirements_success():
