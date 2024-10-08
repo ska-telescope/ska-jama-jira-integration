@@ -4,6 +4,7 @@ Test the JAMA functions
 
 from unittest.mock import patch
 
+from ska_jama_jira_integration import config  # noqa: F401  # pylint: disable=W0611
 from ska_jama_jira_integration.jira.api_interface import get_l1_requirements
 
 
@@ -16,9 +17,7 @@ def test_get_l1_requirements_success():
         ],
     }
 
-    with patch(
-        "ska_jama_jira_integration.jira.jira_interface.requests.get"
-    ) as mock_get:
+    with patch("ska_jama_jira_integration.jira.api_interface.requests.get") as mock_get:
         mock_get.return_value.json.return_value = mock_response_data
         mock_get.return_value.status_code = 200
 
