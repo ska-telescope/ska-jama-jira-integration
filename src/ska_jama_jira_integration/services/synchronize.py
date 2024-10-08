@@ -6,11 +6,11 @@ import logging
 
 import pandas as pd
 
-from ska_jama_jira_integration.jama.jama import (
+from ska_jama_jira_integration.jama.service import (
     get_jama_requirements,
     get_jama_test_cases,
 )
-from ska_jama_jira_integration.jira.jira import (
+from ska_jama_jira_integration.jira.service import (
     get_jira_requirements,
     get_jira_test_cases,
 )
