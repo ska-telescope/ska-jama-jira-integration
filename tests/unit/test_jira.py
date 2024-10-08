@@ -17,7 +17,7 @@ Test the JAMA functions
 #         ],
 #     }
 
-#     with patch("ska_jama_jira_integration.jira.api_interface.requests.get") as mock_get:
+#   with patch("ska_jama_jira_integration.jira.api_interface.requests.get") as mock_get:
 #         mock_get.return_value.json.return_value = mock_response_data
 #         mock_get.return_value.status_code = 200
 
