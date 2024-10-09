@@ -10,11 +10,14 @@ from ska_jama_jira_integration.jama.service import get_field_value
 
 
 def test_get_l1_requirements_success():
+    """
+    Test that get_l1_requirements returns the expected list of L1 requirements.
+    """
     mock_response_data = {
         "meta": {"pageInfo": {"totalResults": 2, "resultCount": 2}},
         "data": [
-            {"id": 1, "name": "L1 Requirement 1"},
-            {"id": 2, "name": "L1 Requirement 2"},
+            {"id": 1, "name": "L1 Jama Requirement 1"},
+            {"id": 2, "name": "L1 Jama Requirement 2"},
         ],
     }
 
@@ -22,15 +25,19 @@ def test_get_l1_requirements_success():
         mock_get.return_value.json.return_value = mock_response_data
         mock_get.return_value.status_code = 200
 
+        # Test Jama  get_l1_requirements
         result = get_l1_requirements()
 
         assert isinstance(result, list)
         assert len(result) == 2
         assert result[0]["id"] == 1
-        assert result[1]["name"] == "L1 Requirement 2"
+        assert result[1]["name"] == "L1 Jama Requirement 2"
 
 
-def test_get_field_value():
+def test_get_field_value():  # noqa: E501
+    """
+    Test that get_field_value returns the expected value after transformation.
+    """
     document = {
         "id": 899970,
         "documentKey": "SKAO-SYS_REQ-2671",
@@ -39,11 +46,11 @@ def test_get_field_value():
         "fields": {
             "documentKey": "SKAO-SYS_REQ-2671",
             "name": "Receptor type",
-            "description": "<p>The SKA-Low shall utilise dual, orthogonally polarised antenna elements.</p>\n",
+            "description": "<p>Requirement description.</p>",
             "status": 8529,
             "allocation$1090": [11309],
             "compliant$1090": 11227,
-            "compliance_rationale$1090": "<p>Requirement is flowed down to the product on a one to one basis. Actual design of antenna has two orthogonal elements one for each polarization.</p>",
+            "compliance_rationale$1090": "<p>Requirement rational.</p>",
             "verification_method$1090": [11288],
             "verification_milestone$1090": [11463, 11459, 11470],
             "verification_compliance$1090": 11523,

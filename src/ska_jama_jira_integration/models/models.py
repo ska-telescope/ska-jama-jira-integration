@@ -7,7 +7,11 @@ from typing import Optional
 
 
 @dataclass
-class Requirement:
+class Requirement:  # pylint: disable=R0902
+    """
+    Requirement data class
+    """
+
     requirement_id: str
     jama_url: str
     name: str

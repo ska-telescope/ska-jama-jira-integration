@@ -89,6 +89,7 @@ def sync_l1():
     logging.info("Synchronizing L1 requirements...")
     new_entries = sync(jira_l1, jama_l1)
 
+    # pylint: disable=W0612
     for index, row in new_entries.head(2).iterrows():
         jama_id = index
 

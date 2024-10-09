@@ -4,7 +4,6 @@ JAMA - JIRA Integration
 
 import argparse
 import logging
-import sys
 
 from ska_jama_jira_integration import config  # noqa: F401  # pylint: disable=W0611
 from ska_jama_jira_integration.services.synchronize import (  # noqa: F401
@@ -15,6 +14,19 @@ from ska_jama_jira_integration.services.synchronize import (  # noqa: F401
 
 
 def main():
+    """
+    Main function to synchronize JIRA and JAMA data.
+
+    Args:
+        --sync (str): Specifies what to synchronize. Choices are:
+            - 'all': Synchronize L1, L2, and test cases.
+            - 'l1': Synchronize L1 items.
+            - 'l2': Synchronize L2 items.
+            - 'test_cases': Synchronize test cases.
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(
         description="JIRA and JAMA Synchronization Service"
     )
