@@ -11,9 +11,11 @@ from ska_jama_jira_integration.jama.service import (
     get_jama_test_cases,
 )
 from ska_jama_jira_integration.jira.service import (
+    create_requirement,
     get_jira_requirements,
     get_jira_test_cases,
 )
+from ska_jama_jira_integration.models.models import Requirement
 
 
 def compare_dataframes(df1, df2):
@@ -86,20 +88,36 @@ def sync_l1():
 
     logging.info("Synchronizing L1 requirements...")
     new_entries = sync(jira_l1, jama_l1)
+
     for index, row in new_entries.head(2).iterrows():
         jama_id = index
-        print(jama_id)
-        print(row)
 
-    #     # Filter the jama_l1 DataFrame based on the document_key
-    #     jama_row = jama_l1[jama_l1["jama_id"] == document_key]
+        # Filter the jama_l1 DataFrame based on the jama_id
+        jama_row = jama_l1[jama_l1["jama_id"] == jama_id]
+        jama_data = jama_row.iloc[0].to_dict()
 
-    #     # Accessing the values in the matched row
-    #     name = jama_row.iloc[0]["name"]
-    #     description = jama_row.iloc[0]["description"]
-    #     rationale = jama_row.iloc[0]["rationale"]
+        jama_url = (
+            f"https://skaoffice.jamacloud.com/perspective.req?"
+            f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
+        )
 
-    #     # create_requirement("L1", document_key, name, description, rationale)
+        requirement = Requirement(
+            requirement_id=jama_data.get("jama_id"),
+            jama_url=jama_url,
+            name=jama_data.get("name"),
+            description=jama_data.get("description"),
+            status=jama_data.get("status"),
+            verification_method=jama_data.get("verification_method"),
+            verification_milestones=jama_data.get("verification_milestones"),
+            rationale=jama_data.get("rationale"),
+            category=jama_data.get("category"),
+            allocation=jama_data.get("allocation"),
+            compliance=jama_data.get("compliance"),
+            tags=jama_data.get("tags"),
+            component=jama_data.get("component"),
+        )
+
+        create_requirement("L1", requirement)
 
 
 def sync_l2():
@@ -169,7 +187,7 @@ def sync_l2():
         jama_id = index
         print(jama_id)
         print(row)
-    #     create_requirement("L1", entry)
+    #     create_requirement("L2", entry)
 
 
 def sync_test_cases():

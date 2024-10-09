@@ -61,7 +61,7 @@ def parse_html(html: str) -> str:
     """
     if html and "<" in html:
         soup = BeautifulSoup(html, "html.parser")
-        return " ".join(p_tag.text for p_tag in soup.find_all("p"))
+        return "\n\n".join(p_tag.text for p_tag in soup.find_all("p"))
     return html
 
 
@@ -76,7 +76,7 @@ def get_milestones(milestone_ids):
 
 def get_test_case(test_steps):
     """
-    Transfor test steps into a full test
+    Transform test steps into a full test
     """
     result = []
 

@@ -1,6 +1,8 @@
 requirement_fields:
   - name: id
     jama_key: id
+  - name: jama_project_id
+    jama_key: project
   - name: jama_id
     jama_key: documentKey
     jira_key: fields.customfield_12133
@@ -63,3 +65,5 @@ test_case_fields:
     jama_key: fields.testCaseSteps
     transformer: get_test_case
     jira_key: fields.customfield_14811
+  - name: status
+    jama_key: fields.testCaseStatus

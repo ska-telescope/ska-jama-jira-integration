@@ -21,9 +21,9 @@ def get_field_value(document: dict, jama_key: str, transformer: callable = None)
     transformer.
 
     Args:
-        document (dict): The Jama document to extract the value from. jama_key (str):
-        The key to access the desired field in the document. transformer (callable,
-        optional): A function to transform the extracted value.
+        - document (dict): The Jama document to extract the value from.
+        - jama_key (str): The key to access the desired field in the document.
+        - transformer (callable, optional): A function to transform the extracted value.
 
     Returns:
         The extracted and possibly transformed value.
@@ -32,10 +32,14 @@ def get_field_value(document: dict, jama_key: str, transformer: callable = None)
     value = document
     for key in keys:
         value = value.get(key, None)
+
         if value is None:
             break
+
+    # Execute transformer function
     if transformer:
         return transformer(value)
+
     return value
 
 

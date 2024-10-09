@@ -166,14 +166,13 @@ def create_ticket(
             "summary": summary,
         }
     }
-    print(issue_data)
 
     # Optionally fields if provided
     if optional_fields:
         issue_data["fields"].update(optional_fields)
 
     try:
-        response = requests.post(api_url, headers=headers, json=issue_data, timeout=10)
+        response = requests.post(api_url, headers=headers, json=issue_data, timeout=100)
         response.raise_for_status()
         logging.info("Successfully created Jira ticket for %s", summary)
         return response.json()
@@ -200,7 +199,7 @@ def update_ticket_transitions(issue_key, status):
         transition_id = get_ticket_transitions(issue_key, status)
         issue_data = {"transition": {"id": transition_id}}
 
-        response = requests.post(api_url, headers=headers, json=issue_data, timeout=10)
+        response = requests.post(api_url, headers=headers, json=issue_data, timeout=100)
         response.raise_for_status()
         logging.info("Successfully updated Jira ticket transition for %s", issue_key)
     except requests.exceptions.RequestException as e:

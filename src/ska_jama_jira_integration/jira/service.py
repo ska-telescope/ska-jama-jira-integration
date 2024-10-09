@@ -13,6 +13,7 @@ from ska_jama_jira_integration.jira.api_interface import (
     update_ticket_transitions,
 )
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
+from ska_jama_jira_integration.models.models import Requirement
 
 
 def get_field_value(ticket: dict, jira_key: str):
@@ -20,8 +21,8 @@ def get_field_value(ticket: dict, jira_key: str):
     Extracts the value from a document using a given Jira key.
 
     Args:
-        ticket (dict): The Jira ticket to extract the value from.
-        jira_key (str): The key to access the desired field in the ticket.
+        - ticket (dict): The Jira ticket to extract the value from.
+        - jira_key (str): The key to access the desired field in the ticket.
 
     Returns:
         The extracted value.
@@ -130,33 +131,42 @@ def get_jira_test_cases() -> pd.DataFrame:
     return df
 
 
-def create_requirement(project_key, requirement_id, name, description, rationale):
+def create_requirement(project_key, requirement: Requirement):
     """
     Create a new requirement ticket in JIRA.
     """
     issue_type = "Requirement"
     priority = "Essential"
-    jama_url = (
-        "https://skaoffice.jamacloud.com/perspective.req?projectId=335&docId=900495"
-    )
-    verification_method = "Test"
-    verification_milestones = "Unassigned"
-    status = "REJECTED"
 
     optional_fields = {
-        "description": description,
+        "description": requirement.description,
         "priority": {"name": priority},
-        "customfield_12133": requirement_id,
-        "customfield_13903": jama_url,
-        "customfield_12137": rationale,
-        "customfield_12149": [{"value": verification_method}],
-        "customfield_15502": [{"value": verification_milestones}],
+        "customfield_12133": requirement.requirement_id,
+        "customfield_13903": requirement.jama_url,
+        # "customfield_12137": rationale,
+        # "customfield_12149": [{"value": verification_method}],
+        # "customfield_15502": [{"value": verification_milestones}],
     }
 
-    issue_response = create_ticket(project_key, issue_type, name, optional_fields)
+    if requirement.verification_method is not None:
+        optional_fields["customfield_12149"] = [
+            {"value": requirement.verification_method}
+        ]
+    if requirement.verification_milestones is not None:
+        optional_fields["customfield_15502"] = [
+            {"value": requirement.verification_milestones}
+        ]
+    if requirement.rationale is not None:
+        optional_fields["customfield_12137"] = requirement.rationale
 
+    # Create jira ticket
+    issue_response = create_ticket(
+        project_key, issue_type, requirement.name, optional_fields
+    )
+
+    # Update jira ticket status
     if issue_response:
-        update_ticket_transitions(issue_response["key"], status)
+        update_ticket_transitions(issue_response["key"], requirement.status)
 
 
 def create_test_case(project_key, requirement_id, name, description):

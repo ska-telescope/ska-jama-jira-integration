@@ -1,5 +1,5 @@
 """
-    Loads the field mappings from a YAML configuration file.
+Loads the field mappings from a YAML configuration file.
 """
 
 import yaml
