@@ -10,6 +10,7 @@ from ska_jama_jira_integration.services.synchronize import (  # noqa: F401
     sync_l1,
     sync_l2,
     sync_test_cases,
+    sync_interfaces,
 )
 
 
@@ -33,8 +34,8 @@ def main():
     parser.add_argument(
         "--sync",
         type=str,
-        choices=["all", "l1", "l2", "test_cases"],
-        help="Specify what to sync: all, l1, l2, test_cases",
+        choices=["all", "l1", "l2", "test_cases", "interfaces"],
+        help="Specify what to sync: all, l1, l2, test_cases, interfaces",
     )
 
     args = parser.parse_args()
@@ -49,6 +50,8 @@ def main():
         sync_l2()
     elif args.sync == "test_cases":
         sync_test_cases()
+    elif args.sync == "interfaces":
+        sync_interfaces()
     else:
         logging.info("No valid sync option provided.")
 

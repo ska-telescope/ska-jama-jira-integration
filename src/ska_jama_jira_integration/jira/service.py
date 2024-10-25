@@ -10,10 +10,10 @@ from ska_jama_jira_integration.jira.api_interface import (
     get_l1_requirements,
     get_l2_requirements,
     get_test_cases,
+    get_interfaces,
     update_ticket_transitions,
 )
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
-from ska_jama_jira_integration.models.models import Requirement
 
 
 def get_field_value(ticket: dict, jira_key: str):
@@ -131,7 +131,36 @@ def get_jira_test_cases() -> pd.DataFrame:
     return df
 
 
-def create_requirement(project_key, requirement: Requirement):
+def get_jira_interfaces() -> pd.DataFrame:
+    """
+    Retrieves JIRA test cases.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the Jira test cases
+    """
+    # Load field mappings from YAML file
+    field_mappings = get_field_mapping("interfaces")
+
+    data = get_interfaces()
+
+    if data is None:
+        raise ValueError("Failed to retrieve data from JIRA.")
+
+    extracted_data = []
+    for ticket in data:
+        extracted_document = {}
+        for field in field_mappings:
+            field_name = field["name"]
+            if field.get("jira_key", None):
+                jira_key = field["jira_key"]
+                extracted_document[field_name] = get_field_value(ticket, jira_key)
+        extracted_data.append(extracted_document)
+
+    df = pd.DataFrame(extracted_data)
+    return df
+
+
+def create_requirement(project_key, requirement):
     """
     Create a new requirement ticket in JIRA.
     """
@@ -139,34 +168,36 @@ def create_requirement(project_key, requirement: Requirement):
     priority = "Essential"
 
     optional_fields = {
-        "description": requirement.description,
         "priority": {"name": priority},
-        "customfield_12133": requirement.requirement_id,
-        "customfield_13903": requirement.jama_url,
-        # "customfield_12137": rationale,
-        # "customfield_12149": [{"value": verification_method}],
-        # "customfield_15502": [{"value": verification_milestones}],
     }
 
-    if requirement.verification_method is not None:
-        optional_fields["customfield_12149"] = [
-            {"value": requirement.verification_method}
-        ]
-    if requirement.verification_milestones is not None:
-        optional_fields["customfield_15502"] = [
-            {"value": requirement.verification_milestones}
-        ]
-    if requirement.rationale is not None:
-        optional_fields["customfield_12137"] = requirement.rationale
+    field_mappings = get_field_mapping("requirement")
+    for field in field_mappings:
+        field_name = field.get("name")
+        jira_key = field.get("jira_key")
 
+        if jira_key:
+            # Remove field. from the jira_key
+            if jira_key and jira_key.startswith("fields."):
+                jira_key = jira_key[len("fields.") :]
+
+            # Get value from requirement
+            value = requirement.get(field_name)
+            if value:
+                if field.get("jira_is_array", False):
+                    optional_fields[jira_key] = [{"value": value}]
+                else:
+                    optional_fields[jira_key] = value
+
+    print(optional_fields)
     # Create jira ticket
     issue_response = create_ticket(
-        project_key, issue_type, requirement.name, optional_fields
+        project_key, issue_type, requirement.get("name"), optional_fields
     )
 
     # Update jira ticket status
     if issue_response:
-        update_ticket_transitions(issue_response["key"], requirement.status)
+        update_ticket_transitions(issue_response["key"], requirement.get("status"))
 
 
 def create_test_case(project_key, requirement_id, name, description):
@@ -191,3 +222,43 @@ def create_test_case(project_key, requirement_id, name, description):
 
     issue_response = create_ticket(project_key, issue_type, name, optional_fields)
     return issue_response
+
+
+def create_interface(project_key, interface):
+    """
+    Create a new interface ticket in JIRA.
+    """
+    issue_type = "Interface"
+
+    optional_fields = {
+        "components": [{"name": "Testing Infrastructure"}],
+    }
+
+    field_mappings = get_field_mapping("interfaces")
+    for field in field_mappings:
+        field_name = field.get("name")
+        jira_key = field.get("jira_key")
+
+        if jira_key:
+            # Remove field. from the jira_key
+            if jira_key and jira_key.startswith("fields."):
+                jira_key = jira_key[len("fields.") :]
+
+            # Get value from interface
+            value = interface.get(field_name)
+            if value:
+                if field.get("jira_is_array", False):
+                    optional_fields[jira_key] = [{"value": value}]
+                elif field.get("jira_is_radio", False):
+                    optional_fields[jira_key] = {"value": value}
+                else:
+                    optional_fields[jira_key] = value
+
+    # Create jira ticket
+    issue_response = create_ticket(
+        project_key, issue_type, interface.get("name"), optional_fields
+    )
+
+    # Update jira ticket status
+    if issue_response:
+        update_ticket_transitions(issue_response["key"], interface.get("status"))

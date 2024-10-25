@@ -22,6 +22,8 @@ def get_field_mapping(mapping_type: str) -> list:
             return config["requirement_fields"]
         if mapping_type == "test_case":
             return config["test_case_fields"]
+        if mapping_type == "interfaces":
+            return config["interfaces_fields"]
 
         raise ValueError(f"Unsupported mapping type: {mapping_type}")
 

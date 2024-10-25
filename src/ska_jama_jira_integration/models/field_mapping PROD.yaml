@@ -3,7 +3,7 @@ requirement_fields:
     jama_key: id
   - name: jama_project_id
     jama_key: project
-  - name: documentKey
+  - name: requirement_id
     jama_key: documentKey
     jira_key: fields.customfield_12133
   - name: name
@@ -34,24 +34,24 @@ requirement_fields:
     jira_key: fields.customfield_12144
   - name: allocation
     jama_key: fields.allocation_to$1090
-    jira_key: fields.customfield_16607
+    jira_key: fields.customfield_16206
   - name: compliance
     jama_key: fields.compliant$1090
     transformer: lookup_compliances
-    jira_key: fields.customfield_16603
+    jira_key: fields.customfield_12142
   - name: compliance_rationale
     jama_key: fields.compliance_rationale$1090
     transformer: parse_html
-    jira_key: fields.customfield_16604
+    jira_key: fields.customfield_12143
   - name: tags
     jama_key: fields.tag$1090
   - name: jama_url
     jira_key: fields.customfield_13903
-    
+
 test_case_fields:
   - name: id
     jama_key: id
-  - name: documentKey
+  - name: jama_id
     jama_key: documentKey
     jira_key: fields.customfield_12133
   - name: name
@@ -71,29 +71,3 @@ test_case_fields:
     jira_key: fields.customfield_14811
   - name: status
     jama_key: fields.testCaseStatus
-
-interfaces_fields:
-  - name: id
-    jama_key: id
-  - name: jama_project_id
-    jama_key: project
-  - name: documentKey
-    jama_key: documentKey
-    jira_key: fields.customfield_12133
-  - name: name
-    jama_key: fields.name
-    jira_key: fields.summary
-  - name: description
-    jama_key: fields.description
-    transformer: parse_html
-    jira_key: fields.description
-  - name: design_compliance
-    jama_key: fields.design_compliance$1358
-    transformer: lookup_compliances
-    jira_key: fields.customfield_16602
-    jira_is_radio: true
-  - name: status
-    jama_key: fields.statusicd$1358
-    transformer: lookup_status
-  - name: jama_url
-    jira_key: fields.customfield_13903

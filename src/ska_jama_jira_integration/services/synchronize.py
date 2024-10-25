@@ -9,13 +9,15 @@ import pandas as pd
 from ska_jama_jira_integration.jama.service import (
     get_jama_requirements,
     get_jama_test_cases,
+    get_jama_interfaces,
 )
 from ska_jama_jira_integration.jira.service import (
     create_requirement,
+    create_interface,
     get_jira_requirements,
     get_jira_test_cases,
+    get_jira_interfaces,
 )
-from ska_jama_jira_integration.models.models import Requirement
 
 
 def compare_dataframes(df1, df2):
@@ -50,8 +52,8 @@ def sync(df1, df2):
     Synchronize two DataFrames and identify new, removed, and modified entries.
     Export the results to an Excel file.
     """
-    df1_filtered = df1[["jama_id", "name", "description"]].set_index("jama_id")
-    df2_filtered = df2[["jama_id", "name", "description"]].set_index("jama_id")
+    df1_filtered = df1[["documentKey", "name", "description"]].set_index("documentKey")
+    df2_filtered = df2[["documentKey", "name", "description"]].set_index("documentKey")
 
     # Remove all leading and trailing spaces before comparing data
     df1_filtered = df1_filtered.apply(
@@ -64,12 +66,12 @@ def sync(df1, df2):
     new_entries, removed_entries, modified_entries = compare_dataframes(
         df1_filtered, df2_filtered
     )
-    export_to_excel(
-        "src/ska_jama_jira_integration/csv_files/requirements_comparison.xlsx",
-        new_entries,
-        removed_entries,
-        modified_entries,
-    )
+    # export_to_excel(
+    #     "src/ska_jama_jira_integration/csv_files/requirements_comparison.xlsx",
+    #     new_entries,
+    #     removed_entries,
+    #     modified_entries,
+    # )
 
     return new_entries
 
@@ -90,11 +92,11 @@ def sync_l1():
     new_entries = sync(jira_l1, jama_l1)
 
     # pylint: disable=W0612
-    for index, row in new_entries.head(2).iterrows():
+    for index, row in new_entries.head(1).iterrows():
         jama_id = index
 
-        # Filter the jama_l1 DataFrame based on the jama_id
-        jama_row = jama_l1[jama_l1["jama_id"] == jama_id]
+        # Filter the jama_l1 DataFrame based on the documentKey
+        jama_row = jama_l1[jama_l1["documentKey"] == jama_id]
         jama_data = jama_row.iloc[0].to_dict()
 
         jama_url = (
@@ -102,21 +104,21 @@ def sync_l1():
             f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
         )
 
-        requirement = Requirement(
-            requirement_id=jama_data.get("jama_id"),
-            jama_url=jama_url,
-            name=jama_data.get("name"),
-            description=jama_data.get("description"),
-            status=jama_data.get("status"),
-            verification_method=jama_data.get("verification_method"),
-            verification_milestones=jama_data.get("verification_milestones"),
-            rationale=jama_data.get("rationale"),
-            category=jama_data.get("category"),
-            allocation=jama_data.get("allocation"),
-            compliance=jama_data.get("compliance"),
-            tags=jama_data.get("tags"),
-            component=jama_data.get("component"),
-        )
+        requirement = {
+            "documentKey": jama_data.get("documentKey"),
+            "jama_url": jama_url,
+            "name": jama_data.get("name"),
+            "description": jama_data.get("description"),
+            "status": jama_data.get("status"),
+            "verification_method": jama_data.get("verification_method"),
+            # "verification_milestone": jama_data.get("verification_milestone"),
+            "rationale": jama_data.get("rationale"),
+            "category": jama_data.get("category"),
+            "allocation": jama_data.get("allocation"),
+            "compliance": jama_data.get("compliance"),
+            "tags": jama_data.get("tags"),
+            "component": jama_data.get("component"),
+        }
 
         create_requirement("L1", requirement)
 
@@ -223,3 +225,46 @@ def sync_test_cases():
         # description = jama_row.iloc[0]["description"]
 
         # create_test_case("STC", jama_id, name, description)
+
+
+def sync_interfaces():
+    """
+    Synchronize Interfaces between Jira and Jama.
+    """
+    logging.info("Fetching Jama interfaces...")
+    jama_interfaces = get_jama_interfaces()
+    jama_interfaces.to_csv(
+        "src/ska_jama_jira_integration/csv_files/jama_interfaces.csv", index=False
+    )
+
+    logging.info("Fetching Jira interfaces...")
+    jira_interfaces = get_jira_interfaces()
+    jira_interfaces.to_csv(
+        "src/ska_jama_jira_integration/csv_files/jira_interfaces.csv", index=False
+    )
+
+    logging.info("Synchronizing interfaces...")
+    new_entries = sync(jira_interfaces, jama_interfaces)
+
+    for index, row in new_entries.iterrows():
+        jama_id = index
+
+        # Filter the jama_interfaces DataFrame based on the requirement_id
+        jama_row = jama_interfaces[jama_interfaces["documentKey"] == jama_id]
+        jama_data = jama_row.iloc[0].to_dict()
+
+        jama_url = (
+            f"https://skaoffice.jamacloud.com/perspective.req?"
+            f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
+        )
+
+        interface = {
+            "documentKey": jama_data.get("documentKey"),
+            "jama_url": jama_url,
+            "name": jama_data.get("name"),
+            "description": jama_data.get("description"),
+            "design_compliance": jama_data.get("design_compliance"),
+            "status": jama_data.get("status"),
+        }
+
+        create_interface("ICD", interface)

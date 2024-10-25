@@ -10,6 +10,7 @@ from ska_jama_jira_integration.jama.api_interface import (
     get_l1_requirements,
     get_l2_requirements,
     get_test_cases,
+    get_interfaces,
 )
 from ska_jama_jira_integration.jama.transformers import *  # noqa: E501 F403 F401 # pylint: disable=W0401 W0614
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
@@ -76,11 +77,12 @@ def get_jama_requirements(level: str, product: str) -> pd.DataFrame:
         extracted_document = {}
         for field in field_mappings:
             field_name = field["name"]
-            jama_key = field["jama_key"]
-            transformer = globals().get(field.get("transformer"), None)
-            extracted_document[field_name] = get_field_value(
-                document, jama_key, transformer
-            )
+            jama_key = field.get("jama_key")
+            if jama_key:
+                transformer = globals().get(field.get("transformer"), None)
+                extracted_document[field_name] = get_field_value(
+                    document, jama_key, transformer
+                )
         extracted_document["component"] = product
         extracted_requirements.append(extracted_document)
 
@@ -107,7 +109,7 @@ def get_jama_test_cases() -> pd.DataFrame:
         extracted_document = {}
         for field in field_mappings:
             field_name = field["name"]
-            jama_key = field["jama_key"]
+            jama_key = field.get("jama_key")
             transformer = globals().get(field.get("transformer"), None)
             extracted_document[field_name] = get_field_value(
                 document, jama_key, transformer
@@ -115,3 +117,34 @@ def get_jama_test_cases() -> pd.DataFrame:
         extracted_test_cases.append(extracted_document)
 
     return pd.DataFrame(extracted_test_cases)
+
+
+def get_jama_interfaces() -> pd.DataFrame:
+    """
+    Retrieves Jama interfaces
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the Jama interfaces.
+    """
+    # Load field mappings from YAML file
+    field_mappings = get_field_mapping("interfaces")
+    interfaces = get_interfaces()
+
+    if interfaces is None:
+        raise ValueError("Failed to retrieve data from Jama.")
+
+    # Extract data using field mappings
+    extracted_interfaces = []
+    for document in interfaces:
+        extracted_document = {}
+        for field in field_mappings:
+            field_name = field["name"]
+            jama_key = field.get("jama_key")
+            if jama_key:
+                transformer = globals().get(field.get("transformer"), None)
+                extracted_document[field_name] = get_field_value(
+                    document, jama_key, transformer
+                )
+        extracted_interfaces.append(extracted_document)
+
+    return pd.DataFrame(extracted_interfaces)

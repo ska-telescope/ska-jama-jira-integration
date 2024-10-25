@@ -177,3 +177,15 @@ def get_test_cases() -> Optional[List[Dict[str, Any]]]:
     """
     api_url = f"{JAMA_BASEURL}/filters/2364/results"
     return fetch_paginated_results(api_url)
+
+
+def get_interfaces() -> Optional[List[Dict[str, Any]]]:
+    """
+    Retrieves all Interfaces from JAMA by fetching all paginated results.
+
+    Returns:
+        Optional[List[Dict[str, Any]]]: A list of all test cases retrieved from the API,
+        or None if an error occurs.
+    """
+    api_url = f"{JAMA_BASEURL}/filters/2852/results"
+    return fetch_paginated_results(api_url)

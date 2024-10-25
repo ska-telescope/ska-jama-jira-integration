@@ -136,6 +136,17 @@ def get_test_cases() -> Optional[Dict[str, Any]]:
     return make_jira_request(filter_id=18807, mapping_type="test_case")
 
 
+def get_interfaces() -> Optional[Dict[str, Any]]:
+    """
+    Retrieves the interfaces from JIRA.
+
+    Returns:
+        Optional[Dict[str, Any]]: The JSON response from the JIRA API, or None if an
+        error occurs.
+    """
+    return make_jira_request(filter_id=19500, mapping_type="interfaces")
+
+
 def create_ticket(
     project_key, issue_type, summary, optional_fields=None
 ) -> Optional[Dict[str, Any]]:

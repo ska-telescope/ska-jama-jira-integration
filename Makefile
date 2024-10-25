@@ -28,4 +28,7 @@ dev-all:
 dev-test-cases:
 	python src/ska_jama_jira_integration/main.py --sync test_cases
 
+dev-interfaces:
+	python src/ska_jama_jira_integration/main.py --sync interfaces
+
 PYTHON_LINE_LENGTH = 88

@@ -7,6 +7,7 @@ for test cases.
 
 import yaml
 from bs4 import BeautifulSoup
+import pypandoc
 
 # Load the YAML file
 with open(
@@ -55,14 +56,23 @@ def lookup_allocations(allocation_id):
     return "Allocation ID not found"
 
 
-def parse_html(html: str) -> str:
+# def parse_html(html: str) -> str:
+#     """
+#     Parse HTML content to extract text if valid.
+#     """
+#     if html and "<" in html:
+#         soup = BeautifulSoup(html, "html.parser")
+#         return "\n\n".join(p_tag.text for p_tag in soup.find_all("p"))
+#     return html
+
+
+def parse_html(html_content):
     """
-    Parse HTML content to extract text if valid.
+    Parse HTML content and convert it into Markdown format, handling tables with rowspan and colspan.
     """
-    if html and "<" in html:
-        soup = BeautifulSoup(html, "html.parser")
-        return "\n\n".join(p_tag.text for p_tag in soup.find_all("p"))
-    return html
+    markdown_content = pypandoc.convert_text(html_content, "markdown", format="html")
+
+    return markdown_content
 
 
 def get_milestones(milestone_ids):
