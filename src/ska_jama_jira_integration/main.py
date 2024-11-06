@@ -44,6 +44,7 @@ def main():
         sync_l1()
         sync_l2()
         sync_test_cases()
+        sync_interfaces()
     elif args.sync == "l1":
         sync_l1()
     elif args.sync == "l2":

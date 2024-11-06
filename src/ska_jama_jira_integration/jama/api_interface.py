@@ -189,3 +189,23 @@ def get_interfaces() -> Optional[List[Dict[str, Any]]]:
     """
     api_url = f"{JAMA_BASEURL}/filters/2852/results"
     return fetch_paginated_results(api_url)
+
+
+def update_item(id, url):
+    """
+    Updates the jira url of an existing JAMA item.
+
+    Args:
+        id (id): The id of the jama item to be updated.
+        url (str): The url to be set for the jama item.
+    """
+    api_url = f"{JAMA_BASEURL}/rest/v1/items/{id}"
+
+    try:
+        pay_load = {"fields": {"jira_url_address$1091": url}}
+
+        response = requests.post(api_url, json=pay_load, auth=auth, timeout=10)
+        response.raise_for_status()
+        logging.info("Successfully updated Jama item with ID: %s", id)
+    except requests.exceptions.RequestException as e:
+        logging.error("Failed to update item in Jama: %s", e)

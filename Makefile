@@ -20,7 +20,7 @@ include .make/base.mk
 -include PrivateRules.mak
 
 dev:
-	python src/ska_jama_jira_integration/main.py --sync l1
+	python src/ska_jama_jira_integration/main.py --sync l2
 
 dev-all:
 	python src/ska_jama_jira_integration/main.py --sync all

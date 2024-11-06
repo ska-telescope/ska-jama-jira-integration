@@ -200,28 +200,42 @@ def create_requirement(project_key, requirement):
         update_ticket_transitions(issue_response["key"], requirement.get("status"))
 
 
-def create_test_case(project_key, requirement_id, name, description):
+def create_test_case(project_key, test_case):
     """
     Create a new test case ticket in JIRA.
     """
     issue_type = "Test"
-    jama_url = (
-        "https://skaoffice.jamacloud.com/perspective.req?projectId=335&docId=900495"
-    )
 
     optional_fields = {}
 
-    if requirement_id is not None:
-        optional_fields["requirement_id"] = requirement_id
+    field_mappings = get_field_mapping("test_case")
+    for field in field_mappings:
+        field_name = field.get("name")
+        jira_key = field.get("jira_key")
 
-    if description is not None:
-        optional_fields["description"] = description
+        if jira_key:
+            # Remove field. from the jira_key
+            if jira_key and jira_key.startswith("fields."):
+                jira_key = jira_key[len("fields.") :]
 
-    if jama_url is not None:
-        optional_fields["customfield_13903"] = jama_url
+            # Get value from test case
+            value = test_case.get(field_name)
+            if value:
+                if field.get("jira_is_array", False):
+                    optional_fields[jira_key] = [{"value": value}]
+                elif field.get("jira_is_radio", False):
+                    optional_fields[jira_key] = {"value": value}
+                else:
+                    optional_fields[jira_key] = value
 
-    issue_response = create_ticket(project_key, issue_type, name, optional_fields)
-    return issue_response
+    # Create jira ticket
+    issue_response = create_ticket(
+        project_key, issue_type, test_case.get("name"), optional_fields
+    )
+
+    # Update jira ticket status
+    if issue_response:
+        update_ticket_transitions(issue_response["key"], test_case.get("status"))
 
 
 def create_interface(project_key, interface):

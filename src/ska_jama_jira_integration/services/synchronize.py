@@ -10,9 +10,11 @@ from ska_jama_jira_integration.jama.service import (
     get_jama_requirements,
     get_jama_test_cases,
     get_jama_interfaces,
+    update_item,
 )
 from ska_jama_jira_integration.jira.service import (
     create_requirement,
+    create_test_case,
     create_interface,
     get_jira_requirements,
     get_jira_test_cases,
@@ -92,6 +94,7 @@ def sync_l1():
     new_entries = sync(jira_l1, jama_l1)
 
     # pylint: disable=W0612
+    logging.info("Creating jira tickets...")
     for index, row in new_entries.head(1).iterrows():
         jama_id = index
 
@@ -186,11 +189,37 @@ def sync_l2():
 
     logging.info("Synchronizing L2 requirements...")
     new_entries = sync(jira_l2, jama_l2)
-    for index, row in new_entries.head(2).iterrows():
+
+    logging.info("Creating jira tickets...")
+    for index, row in new_entries.head(1).iterrows():
         jama_id = index
-        print(jama_id)
-        print(row)
-    #     create_requirement("L2", entry)
+
+        # Filter the jama_l2 DataFrame based on the documentKey
+        jama_row = jama_l2[jama_l2["documentKey"] == jama_id]
+        jama_data = jama_row.iloc[0].to_dict()
+
+        jama_url = (
+            f"https://skaoffice.jamacloud.com/perspective.req?"
+            f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
+        )
+
+        requirement = {
+            "documentKey": jama_data.get("documentKey"),
+            "jama_url": jama_url,
+            "name": jama_data.get("name"),
+            "description": jama_data.get("description"),
+            "status": jama_data.get("status"),
+            "verification_method": jama_data.get("verification_method"),
+            "verification_milestone": jama_data.get("verification_milestone"),
+            "rationale": jama_data.get("rationale"),
+            "category": jama_data.get("category"),
+            "allocation": jama_data.get("allocation"),
+            "compliance": jama_data.get("compliance"),
+            "tags": jama_data.get("tags"),
+            "component": jama_data.get("component"),
+        }
+
+        create_requirement("L2", requirement)
 
 
 def sync_test_cases():
@@ -212,19 +241,30 @@ def sync_test_cases():
     logging.info("Synchronizing test cases...")
     new_entries = sync(jira_test_cases, jama_test_cases)
 
+    logging.info("Creating jira tickets...")
     for index, row in new_entries.head(2).iterrows():
         jama_id = index
-        print(jama_id)
-        print(row)
 
-        # Filter the jama_l1 DataFrame based on the jama_id
-        # jama_row = jama_test_cases[jama_test_cases["jama_id"] == jama_id]
+        # Filter the jama_test_cases DataFrame based on the documentKey
+        jama_row = jama_test_cases[jama_test_cases["documentKey"] == jama_id]
+        jama_data = jama_row.iloc[0].to_dict()
 
-        # Accessing the values in the matched row
-        # name = jama_row.iloc[0]["name"]
-        # description = jama_row.iloc[0]["description"]
+        jama_url = (
+            f"https://skaoffice.jamacloud.com/perspective.req?"
+            f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
+        )
 
-        # create_test_case("STC", jama_id, name, description)
+        test_case = {
+            "documentKey": jama_data.get("documentKey"),
+            "jama_url": jama_url,
+            "name": jama_data.get("name"),
+            "description": jama_data.get("description"),
+            "verification_milestone": jama_data.get("verification_milestone"),
+            "test": jama_data.get("test"),
+            "status": jama_data.get("status"),
+        }
+
+        create_test_case("STC", test_case)
 
 
 def sync_interfaces():
@@ -246,10 +286,11 @@ def sync_interfaces():
     logging.info("Synchronizing interfaces...")
     new_entries = sync(jira_interfaces, jama_interfaces)
 
+    logging.info("Creating jira tickets...")
     for index, row in new_entries.iterrows():
         jama_id = index
 
-        # Filter the jama_interfaces DataFrame based on the requirement_id
+        # Filter the jama_interfaces DataFrame based on the documentKey
         jama_row = jama_interfaces[jama_interfaces["documentKey"] == jama_id]
         jama_data = jama_row.iloc[0].to_dict()
 
@@ -268,3 +309,6 @@ def sync_interfaces():
         }
 
         create_interface("ICD", interface)
+
+    logging.info("Update jama item...")
+    # update_item()
