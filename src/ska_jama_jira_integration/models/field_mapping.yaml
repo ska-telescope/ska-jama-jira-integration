@@ -47,6 +47,8 @@ requirement_fields:
     jama_key: fields.tag$1090
   - name: jama_url
     jira_key: fields.customfield_13903
+  - name: component
+    jira_key: components
     
 test_case_fields:
   - name: id

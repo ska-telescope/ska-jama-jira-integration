@@ -19,11 +19,14 @@ include .make/base.mk
 # include your own private variables for custom deployment configuration
 -include PrivateRules.mak
 
-dev:
-	python src/ska_jama_jira_integration/main.py --sync l2
-
 dev-all:
 	python src/ska_jama_jira_integration/main.py --sync all
+
+dev-l1:
+	python src/ska_jama_jira_integration/main.py --sync l1
+
+dev-l2:
+	python src/ska_jama_jira_integration/main.py --sync l2
 
 dev-test-cases:
 	python src/ska_jama_jira_integration/main.py --sync test_cases

@@ -191,7 +191,7 @@ def get_interfaces() -> Optional[List[Dict[str, Any]]]:
     return fetch_paginated_results(api_url)
 
 
-def update_item(id, url):
+def get_item(id):
     """
     Updates the jira url of an existing JAMA item.
 
@@ -199,13 +199,32 @@ def update_item(id, url):
         id (id): The id of the jama item to be updated.
         url (str): The url to be set for the jama item.
     """
-    api_url = f"{JAMA_BASEURL}/rest/v1/items/{id}"
-
+    api_url = f"{JAMA_BASEURL}/items/{id}"
     try:
-        pay_load = {"fields": {"jira_url_address$1091": url}}
-
-        response = requests.post(api_url, json=pay_load, auth=auth, timeout=10)
+        response = requests.get(api_url, auth=auth, timeout=10)
         response.raise_for_status()
-        logging.info("Successfully updated Jama item with ID: %s", id)
+        logging.info("Fetching Jama data from item with ID: %s", id)
+
+        result = response.json()
+        data = result.get("data", [])
+        return data
+    except requests.exceptions.RequestException as e:
+        logging.error("Failed to update item in Jama: %s", e)
+
+
+def put_item(id, pay_load):
+    """
+    Updates the jira url of an existing JAMA item.
+
+    Args:
+        id (id): The id of the jama item to be updated.
+        url (str): The url to be set for the jama item.
+    """
+    api_url = f"{JAMA_BASEURL}/items/{id}"
+    try:
+        response = requests.put(api_url, json=pay_load, auth=auth, timeout=10)
+        status = response.status_code
+        if status == 200:
+            logging.info("Successfully updated Jama item with ID: %s", id)
     except requests.exceptions.RequestException as e:
         logging.error("Failed to update item in Jama: %s", e)

@@ -4,6 +4,7 @@ test cases.
 """
 
 import pandas as pd
+import re
 
 from ska_jama_jira_integration.jira.api_interface import (
     create_ticket,
@@ -106,17 +107,6 @@ def get_jira_test_cases() -> pd.DataFrame:
     if data is None:
         raise ValueError("Failed to retrieve data from JIRA.")
 
-    # extracted_data = [
-    #     {
-    #         "id": issue["id"],
-    #         "key": issue["key"],
-    #         "document_id": issue["fields"]["customfield_12133"],
-    #         "name": issue["fields"]["summary"],
-    #         "description": issue["fields"]["description"],
-    #     }
-    #     for issue in data
-    # ]
-
     extracted_data = []
     for ticket in data:
         extracted_document = {}
@@ -185,11 +175,20 @@ def create_requirement(project_key, requirement):
             value = requirement.get(field_name)
             if value:
                 if field.get("jira_is_array", False):
-                    optional_fields[jira_key] = [{"value": value}]
+                    split_values = re.split(r",\s*(?![^()]*\))", value)
+                    values_list = [
+                        {
+                            "value": (
+                                "Unassigned" if v.strip() == "UNASSIGNED" else v.strip()
+                            )
+                        }
+                        for v in split_values
+                    ]
+
+                    optional_fields[jira_key] = values_list
                 else:
                     optional_fields[jira_key] = value
 
-    print(optional_fields)
     # Create jira ticket
     issue_response = create_ticket(
         project_key, issue_type, requirement.get("name"), optional_fields
@@ -276,3 +275,5 @@ def create_interface(project_key, interface):
     # Update jira ticket status
     if issue_response:
         update_ticket_transitions(issue_response["key"], interface.get("status"))
+
+    return issue_response

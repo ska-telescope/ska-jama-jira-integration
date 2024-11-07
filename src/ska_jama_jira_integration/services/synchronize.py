@@ -10,7 +10,7 @@ from ska_jama_jira_integration.jama.service import (
     get_jama_requirements,
     get_jama_test_cases,
     get_jama_interfaces,
-    update_item,
+    update_jama_item,
 )
 from ska_jama_jira_integration.jira.service import (
     create_requirement,
@@ -114,13 +114,13 @@ def sync_l1():
             "description": jama_data.get("description"),
             "status": jama_data.get("status"),
             "verification_method": jama_data.get("verification_method"),
-            # "verification_milestone": jama_data.get("verification_milestone"),
+            "verification_milestone": jama_data.get("verification_milestone"),
             "rationale": jama_data.get("rationale"),
             "category": jama_data.get("category"),
             "allocation": jama_data.get("allocation"),
-            "compliance": jama_data.get("compliance"),
+            # "compliance": jama_data.get("compliance"),
             "tags": jama_data.get("tags"),
-            "component": jama_data.get("component"),
+            "component": [{"name": "System"}],
         }
 
         create_requirement("L1", requirement)
@@ -242,7 +242,7 @@ def sync_test_cases():
     new_entries = sync(jira_test_cases, jama_test_cases)
 
     logging.info("Creating jira tickets...")
-    for index, row in new_entries.head(2).iterrows():
+    for index, row in new_entries.head(1).iterrows():
         jama_id = index
 
         # Filter the jama_test_cases DataFrame based on the documentKey
@@ -308,7 +308,11 @@ def sync_interfaces():
             "status": jama_data.get("status"),
         }
 
-        create_interface("ICD", interface)
+        jira_interface = create_interface("ICD", interface)
 
-    logging.info("Update jama item...")
-    # update_item()
+        logging.info("Updating Jama item...")
+        print(jira_interface["self"])
+        # update_jama_item(
+        #     1169665,
+        #     "https://jira-test-3.skatelescope.org/projects/STC/issues/STC-2062",
+        # )

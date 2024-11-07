@@ -11,7 +11,8 @@ from ska_jama_jira_integration.jama.api_interface import (
     get_l2_requirements,
     get_test_cases,
     get_interfaces,
-    update_item,
+    get_item,
+    put_item,
 )
 from ska_jama_jira_integration.jama.transformers import *  # noqa: E501 F403 F401 # pylint: disable=W0401 W0614
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
@@ -153,4 +154,6 @@ def get_jama_interfaces() -> pd.DataFrame:
 
 
 def update_jama_item(id, url):
-    update_item(id, url)
+    item = get_item(id)
+    item["fields"]["jira_url$1358"] = url
+    put_item(id, item)
