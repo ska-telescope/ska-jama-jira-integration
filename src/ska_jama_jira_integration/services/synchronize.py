@@ -7,18 +7,18 @@ import logging
 import pandas as pd
 
 from ska_jama_jira_integration.jama.service import (
+    get_jama_interfaces,
     get_jama_requirements,
     get_jama_test_cases,
-    get_jama_interfaces,
     update_jama_item,
 )
 from ska_jama_jira_integration.jira.service import (
+    create_interface,
     create_requirement,
     create_test_case,
-    create_interface,
+    get_jira_interfaces,
     get_jira_requirements,
     get_jira_test_cases,
-    get_jira_interfaces,
 )
 
 
@@ -49,13 +49,13 @@ def export_to_excel(file_name, new_entries, removed_entries, modified_entries):
     logging.info("Exported comparison results to %s", file_name)
 
 
-def sync(df1, df2):
+def synchronize(df1, df2):
     """
     Synchronize two DataFrames and identify new, removed, and modified entries.
     Export the results to an Excel file.
     """
-    df1_filtered = df1[["documentKey", "name", "description"]].set_index("documentKey")
-    df2_filtered = df2[["documentKey", "name", "description"]].set_index("documentKey")
+    df1_filtered = df1[["documentKey", "name"]].set_index("documentKey")
+    df2_filtered = df2[["documentKey", "name"]].set_index("documentKey")
 
     # Remove all leading and trailing spaces before comparing data
     df1_filtered = df1_filtered.apply(
@@ -91,17 +91,18 @@ def sync_l1():
     jira_l1.to_csv("src/ska_jama_jira_integration/csv_files/jira_l1.csv", index=False)
 
     logging.info("Synchronizing L1 requirements...")
-    new_entries = sync(jira_l1, jama_l1)
+    new_entries = synchronize(jira_l1, jama_l1)
 
     # pylint: disable=W0612
     logging.info("Creating jira tickets...")
-    for index, row in new_entries.head(1).iterrows():
+    for index, row in new_entries.head(2).iterrows():
         jama_id = index
 
         # Filter the jama_l1 DataFrame based on the documentKey
         jama_row = jama_l1[jama_l1["documentKey"] == jama_id]
         jama_data = jama_row.iloc[0].to_dict()
 
+        # Create jama url
         jama_url = (
             f"https://skaoffice.jamacloud.com/perspective.req?"
             f"projectId={jama_data['jama_project_id']}&docId={jama_data['id']}"
@@ -188,7 +189,7 @@ def sync_l2():
     jira_l2.to_csv("src/ska_jama_jira_integration/csv_files/jira_l2.csv", index=False)
 
     logging.info("Synchronizing L2 requirements...")
-    new_entries = sync(jira_l2, jama_l2)
+    new_entries = synchronize(jira_l2, jama_l2)
 
     logging.info("Creating jira tickets...")
     for index, row in new_entries.head(1).iterrows():
@@ -239,7 +240,7 @@ def sync_test_cases():
     )
 
     logging.info("Synchronizing test cases...")
-    new_entries = sync(jira_test_cases, jama_test_cases)
+    new_entries = synchronize(jira_test_cases, jama_test_cases)
 
     logging.info("Creating jira tickets...")
     for index, row in new_entries.head(1).iterrows():
@@ -284,7 +285,7 @@ def sync_interfaces():
     )
 
     logging.info("Synchronizing interfaces...")
-    new_entries = sync(jira_interfaces, jama_interfaces)
+    new_entries = synchronize(jira_interfaces, jama_interfaces)
 
     logging.info("Creating jira tickets...")
     for index, row in new_entries.iterrows():

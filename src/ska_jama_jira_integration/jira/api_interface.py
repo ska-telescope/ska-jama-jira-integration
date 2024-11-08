@@ -78,13 +78,15 @@ def make_jira_request(filter_id: int, mapping_type: str) -> Optional[Dict[str, A
         Optional[Dict[str, Any]]: The JSON response from the JIRA API, or None if an
         error occurs.
     """
-    # Get field mapping and create filter
+    # Get fields to query from field mapping and create filter
     field_mappings = get_field_mapping(mapping_type)
-    jira_fields = [
-        field["jira_key"].replace("fields.", "")
-        for field in field_mappings
-        if "jira_key" in field
-    ]
+    jira_fields = []
+
+    for field_mapping in field_mappings:
+        if "jira_field" in field_mapping:
+            jira_field = field_mapping["jira_field"]
+            if "key" in jira_field:
+                jira_fields.append(jira_field["key"].replace("fields.", ""))
 
     api_url = f"{JIRA_BASEURL}/search"
     params = {

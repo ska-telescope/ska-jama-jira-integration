@@ -5,10 +5,11 @@ milestones, and allocations from a YAML file, and also to parse and format HTML 
 for test cases.
 """
 
+import re
+
+import html2text
 import yaml
 from bs4 import BeautifulSoup
-import re
-import html2text
 
 # Load the YAML file
 with open(
@@ -62,8 +63,17 @@ def get_milestones(milestone_ids):
     Retrieve milestones from IDs.
     """
     if milestone_ids:
-        return ",".join(lookup_milestones(m_id) for m_id in milestone_ids)
-    return ""
+        return ";".join(lookup_milestones(m_id) for m_id in milestone_ids)
+    return "Unassigned"
+
+
+def get_verification_method(method):
+    """
+    Retrieve verification method.
+    """
+    if method:
+        return method
+    return "Unassigned"
 
 
 def get_test_case(test_steps):
@@ -83,6 +93,15 @@ def get_test_case(test_steps):
             result.append(step_str)
 
     return "----\n".join(result)
+
+
+def parse_to_array(text: str) -> str:
+    """
+    Replace commas with semicolons in the input text.
+    """
+    if text:
+        return text.replace(",", ";")
+    return text
 
 
 def parse_html(html: str) -> str:

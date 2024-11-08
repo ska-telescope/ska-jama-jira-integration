@@ -3,15 +3,16 @@ This module integrates with JIRA to manage and retrieve various requirement leve
 test cases.
 """
 
-import pandas as pd
 import re
+
+import pandas as pd
 
 from ska_jama_jira_integration.jira.api_interface import (
     create_ticket,
+    get_interfaces,
     get_l1_requirements,
     get_l2_requirements,
     get_test_cases,
-    get_interfaces,
     update_ticket_transitions,
 )
 from ska_jama_jira_integration.models.field_mapping import get_field_mapping
@@ -44,6 +45,44 @@ def get_field_value(ticket: dict, jira_key: str):
     return value
 
 
+def extract_field_mapping_data(data, mapping_type):
+    """
+    Extracts and maps data from JIRA tickets based on a specified field mapping type.
+
+    This function loads field mappings from a YAML file and uses them to extract
+    relevant data from a list of JIRA tickets. Each ticket's data is mapped to
+    the corresponding fields as defined in the field mappings.
+
+    Args:
+        data (list): A list of JIRA ticket data to be processed.
+        mapping_type (str): The type of field mapping to be used for extraction.
+
+    Returns:
+        list: A list of dictionaries containing the extracted and mapped data
+        for each ticket.
+    """
+
+    # Load field mappings from YAML file
+    field_mappings = get_field_mapping(mapping_type)
+
+    # Extract data into field mappings
+    extracted_data = []
+    for data_row in data:
+        extracted_document = {}
+        for field_mapping in field_mappings:
+            field_name = field_mapping["name"]
+
+            if "jira_field" in field_mapping:
+                jira_field = field_mapping["jira_field"]
+                if "key" in jira_field:
+                    key = jira_field["key"]
+                    extracted_document[field_name] = get_field_value(data_row, key)
+
+        extracted_data.append(extracted_document)
+
+    return extracted_data
+
+
 def get_jira_requirements(level) -> pd.DataFrame:
     """
     Retrieves JIRA requirements for a given requirement level.
@@ -54,9 +93,6 @@ def get_jira_requirements(level) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing Jira requirements.
     """
-    # Load field mappings from YAML file
-    field_mappings = get_field_mapping("requirement")
-
     if level == "L1":
         data = get_l1_requirements()
     elif level == "L2":
@@ -67,27 +103,7 @@ def get_jira_requirements(level) -> pd.DataFrame:
     if data is None:
         raise ValueError("Failed to retrieve data from JIRA.")
 
-    # extracted_data = [
-    #     {
-    #         "id": issue["id"],
-    #         "key": issue["key"],
-    #         "document_id": issue["fields"]["customfield_12133"],
-    #         "name": issue["fields"]["summary"],
-    #         "description": issue["fields"]["description"],
-    #     }
-    #     for issue in data
-    # ]
-
-    extracted_data = []
-    for ticket in data:
-        extracted_document = {}
-        for field in field_mappings:
-            field_name = field["name"]
-            if field.get("jira_key", None):
-                jira_key = field["jira_key"]
-                extracted_document[field_name] = get_field_value(ticket, jira_key)
-        extracted_data.append(extracted_document)
-
+    extracted_data = extract_field_mapping_data(data, "requirement")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -99,24 +115,12 @@ def get_jira_test_cases() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jira test cases
     """
-    # Load field mappings from YAML file
-    field_mappings = get_field_mapping("test_case")
-
     data = get_test_cases()
 
     if data is None:
         raise ValueError("Failed to retrieve data from JIRA.")
 
-    extracted_data = []
-    for ticket in data:
-        extracted_document = {}
-        for field in field_mappings:
-            field_name = field["name"]
-            if field.get("jira_key", None):
-                jira_key = field["jira_key"]
-                extracted_document[field_name] = get_field_value(ticket, jira_key)
-        extracted_data.append(extracted_document)
-
+    extracted_data = extract_field_mapping_data(data, "test_case")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -128,24 +132,12 @@ def get_jira_interfaces() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jira test cases
     """
-    # Load field mappings from YAML file
-    field_mappings = get_field_mapping("interfaces")
-
     data = get_interfaces()
 
     if data is None:
         raise ValueError("Failed to retrieve data from JIRA.")
 
-    extracted_data = []
-    for ticket in data:
-        extracted_document = {}
-        for field in field_mappings:
-            field_name = field["name"]
-            if field.get("jira_key", None):
-                jira_key = field["jira_key"]
-                extracted_document[field_name] = get_field_value(ticket, jira_key)
-        extracted_data.append(extracted_document)
-
+    extracted_data = extract_field_mapping_data(data, "test_case")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -162,32 +154,30 @@ def create_requirement(project_key, requirement):
     }
 
     field_mappings = get_field_mapping("requirement")
-    for field in field_mappings:
-        field_name = field.get("name")
-        jira_key = field.get("jira_key")
+    for field_mapping in field_mappings:
+        field_name = field_mapping["name"]
 
-        if jira_key:
-            # Remove field. from the jira_key
-            if jira_key and jira_key.startswith("fields."):
-                jira_key = jira_key[len("fields.") :]
+        if "jira_field" in field_mapping:
+            jira_field = field_mapping["jira_field"]
+            if "key" in jira_field:
+                key = jira_field["key"]  # e.g: fields.customfield_13903
 
-            # Get value from requirement
-            value = requirement.get(field_name)
-            if value:
-                if field.get("jira_is_array", False):
-                    split_values = re.split(r",\s*(?![^()]*\))", value)
-                    values_list = [
-                        {
-                            "value": (
-                                "Unassigned" if v.strip() == "UNASSIGNED" else v.strip()
-                            )
-                        }
-                        for v in split_values
-                    ]
+                # Remove field. from the jira_key
+                if key.startswith("fields."):
+                    key = key[len("fields.") :]
 
-                    optional_fields[jira_key] = values_list
-                else:
-                    optional_fields[jira_key] = value
+                # Get value from requirement
+                value = requirement.get(field_name)
+                if value:
+                    if "type" in jira_field:
+                        type = jira_field["type"]  # e.g: array, radio
+                        if type == "array":
+                            split_values = re.split(";", value)
+                            optional_fields[key] = [{"value": v} for v in split_values]
+                        elif type == "radio":
+                            optional_fields[key] = {"value": value}
+                    else:
+                        optional_fields[key] = value
 
     # Create jira ticket
     issue_response = create_ticket(

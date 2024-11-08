@@ -7,10 +7,10 @@ import logging
 
 from ska_jama_jira_integration import config  # noqa: F401  # pylint: disable=W0611
 from ska_jama_jira_integration.services.synchronize import (  # noqa: F401
+    sync_interfaces,
     sync_l1,
     sync_l2,
     sync_test_cases,
-    sync_interfaces,
 )
 
 

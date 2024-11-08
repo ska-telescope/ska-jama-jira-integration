@@ -9,8 +9,6 @@ statuses:
     Status: Unknown
 
 compliances:
-  - Compliance ID: 11226
-    Compliance: Unknown
   - Compliance ID: 11227
     Compliance: Compliant
   - Compliance ID: 11228
@@ -20,7 +18,7 @@ compliances:
 
 milestones:
   - Milestone ID: 11457
-    Milestone: UNASSIGNED
+    Milestone: Unassigned
   - Milestone ID: 11458
     Milestone: ITF LOW
   - Milestone ID: 11459
