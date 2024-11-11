@@ -40,26 +40,21 @@ def get_field_value(ticket: dict, jira_key: str):
     if isinstance(value, list) and len(value) > 0:
         concatenated_values = ",".join([item.get("value", "") for item in value])
         value = concatenated_values
-        # value = value[0].get("value", None)
 
     return value
 
 
-def extract_field_mapping_data(data, mapping_type):
+# pylint: disable=R0801
+def extract_field_mapping_data(artifacts, mapping_type):
     """
-    Extracts and maps data from JIRA tickets based on a specified field mapping type.
-
-    This function loads field mappings from a YAML file and uses them to extract
-    relevant data from a list of JIRA tickets. Each ticket's data is mapped to
-    the corresponding fields as defined in the field mappings.
+    Extracts and maps JIRA artifacts based on a specified field mapping type.
 
     Args:
-        data (list): A list of JIRA ticket data to be processed.
-        mapping_type (str): The type of field mapping to be used for extraction.
+        - artifacts (list): A list of JIRA artifacts to be processed.
+        - mapping_type (str): The type of field mapping to be used for extraction.
 
     Returns:
         list: A list of dictionaries containing the extracted and mapped data
-        for each ticket.
     """
 
     # Load field mappings from YAML file
@@ -67,7 +62,7 @@ def extract_field_mapping_data(data, mapping_type):
 
     # Extract data into field mappings
     extracted_data = []
-    for data_row in data:
+    for artifact in artifacts:
         extracted_document = {}
         for field_mapping in field_mappings:
             field_name = field_mapping["name"]
@@ -76,11 +71,14 @@ def extract_field_mapping_data(data, mapping_type):
                 jira_field = field_mapping["jira_field"]
                 if "key" in jira_field:
                     key = jira_field["key"]
-                    extracted_document[field_name] = get_field_value(data_row, key)
+                    extracted_document[field_name] = get_field_value(artifact, key)
 
         extracted_data.append(extracted_document)
 
     return extracted_data
+
+
+# pylint: enable=R0801
 
 
 def get_jira_requirements(level) -> pd.DataFrame:
@@ -94,16 +92,16 @@ def get_jira_requirements(level) -> pd.DataFrame:
         pd.DataFrame: A DataFrame containing Jira requirements.
     """
     if level == "L1":
-        data = get_l1_requirements()
+        jira_requirements = get_l1_requirements()
     elif level == "L2":
-        data = get_l2_requirements()
+        jira_requirements = get_l2_requirements()
     else:
         raise ValueError(f"Unsupported level: {level}")
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from JIRA.")
+    if jira_requirements is None:
+        raise ValueError("Failed to retrieve requirements from JIRA.")
 
-    extracted_data = extract_field_mapping_data(data, "requirement")
+    extracted_data = extract_field_mapping_data(jira_requirements, "requirement")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -115,12 +113,12 @@ def get_jira_test_cases() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jira test cases
     """
-    data = get_test_cases()
+    jira_test_cases = get_test_cases()
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from JIRA.")
+    if jira_test_cases is None:
+        raise ValueError("Failed to retrieve test cases from JIRA.")
 
-    extracted_data = extract_field_mapping_data(data, "test_case")
+    extracted_data = extract_field_mapping_data(jira_test_cases, "test_case")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -132,12 +130,12 @@ def get_jira_interfaces() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jira test cases
     """
-    data = get_interfaces()
+    jira_interfaces = get_interfaces()
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from JIRA.")
+    if jira_interfaces is None:
+        raise ValueError("Failed to retrieve interfaces from JIRA.")
 
-    extracted_data = extract_field_mapping_data(data, "test_case")
+    extracted_data = extract_field_mapping_data(jira_interfaces, "test_case")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -164,20 +162,12 @@ def create_requirement(project_key, requirement):
 
                 # Remove field. from the jira_key
                 if key.startswith("fields."):
-                    key = key[len("fields.") :]
+                    key = key[len("fields.") :]  # noqa: E203
 
                 # Get value from requirement
                 value = requirement.get(field_name)
                 if value:
-                    if "type" in jira_field:
-                        type = jira_field["type"]  # e.g: array, radio
-                        if type == "array":
-                            split_values = re.split(";", value)
-                            optional_fields[key] = [{"value": v} for v in split_values]
-                        elif type == "radio":
-                            optional_fields[key] = {"value": value}
-                    else:
-                        optional_fields[key] = value
+                    set_optional_field_value(jira_field, key, value, optional_fields)
 
     # Create jira ticket
     issue_response = create_ticket(
@@ -187,6 +177,20 @@ def create_requirement(project_key, requirement):
     # Update jira ticket status
     if issue_response:
         update_ticket_transitions(issue_response["key"], requirement.get("status"))
+
+
+def set_optional_field_value(jira_field, key, value, optional_fields):
+    """
+    Set the value of an optional field based on its type.
+    """
+    field_type = jira_field.get("type")
+    if field_type == "array":
+        split_values = re.split(";", value)
+        optional_fields[key] = [{"value": v} for v in split_values]
+    elif field_type == "radio":
+        optional_fields[key] = {"value": value}
+    else:
+        optional_fields[key] = value
 
 
 def create_test_case(project_key, test_case):
@@ -205,7 +209,7 @@ def create_test_case(project_key, test_case):
         if jira_key:
             # Remove field. from the jira_key
             if jira_key and jira_key.startswith("fields."):
-                jira_key = jira_key[len("fields.") :]
+                jira_key = jira_key[len("fields.") :]  # noqa: E203
 
             # Get value from test case
             value = test_case.get(field_name)
@@ -245,7 +249,7 @@ def create_interface(project_key, interface):
         if jira_key:
             # Remove field. from the jira_key
             if jira_key and jira_key.startswith("fields."):
-                jira_key = jira_key[len("fields.") :]
+                jira_key = jira_key[len("fields.") :]  # noqa: E203
 
             # Get value from interface
             value = interface.get(field_name)

@@ -10,7 +10,6 @@ from ska_jama_jira_integration.jama.service import (
     get_jama_interfaces,
     get_jama_requirements,
     get_jama_test_cases,
-    update_jama_item,
 )
 from ska_jama_jira_integration.jira.service import (
     create_interface,
@@ -65,9 +64,12 @@ def synchronize(df1, df2):
         lambda x: x.str.strip() if x.dtype == "object" else x
     )
 
+    # pylint: disable=W0612
     new_entries, removed_entries, modified_entries = compare_dataframes(
         df1_filtered, df2_filtered
     )
+    # pylint: enable=W0612
+
     # export_to_excel(
     #     "src/ska_jama_jira_integration/csv_files/requirements_comparison.xlsx",
     #     new_entries,
@@ -93,8 +95,8 @@ def sync_l1():
     logging.info("Synchronizing L1 requirements...")
     new_entries = synchronize(jira_l1, jama_l1)
 
-    # pylint: disable=W0612
     logging.info("Creating jira tickets...")
+    # pylint: disable=W0612
     for index, row in new_entries.head(2).iterrows():
         jama_id = index
 
@@ -192,6 +194,7 @@ def sync_l2():
     new_entries = synchronize(jira_l2, jama_l2)
 
     logging.info("Creating jira tickets...")
+    # pylint: disable=W0612
     for index, row in new_entries.head(1).iterrows():
         jama_id = index
 
@@ -243,6 +246,7 @@ def sync_test_cases():
     new_entries = synchronize(jira_test_cases, jama_test_cases)
 
     logging.info("Creating jira tickets...")
+    # pylint: disable=W0612
     for index, row in new_entries.head(1).iterrows():
         jama_id = index
 
@@ -288,6 +292,7 @@ def sync_interfaces():
     new_entries = synchronize(jira_interfaces, jama_interfaces)
 
     logging.info("Creating jira tickets...")
+    # pylint: disable=W0612
     for index, row in new_entries.iterrows():
         jama_id = index
 

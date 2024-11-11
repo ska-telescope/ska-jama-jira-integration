@@ -46,22 +46,18 @@ def get_field_value(document: dict, jama_key: str, transformer: callable = None)
     return value
 
 
-def extract_field_mapping_data(data, mapping_type, product=None):
+# pylint: disable=R0801
+def extract_field_mapping_data(artifacts, mapping_type, product=None):
     """
-    Extracts and maps data from JAMA items based on a specified field mapping type.
-
-    This function loads field mappings from a YAML file and uses them to extract
-    relevant data from a list of JAMA items. Each ticket's data is mapped to
-    the corresponding fields as defined in the field mappings.
+    Extracts and maps JAMA artifacts based on a specified field mapping type.
 
     Args:
-        data (list): A list of JAMA item data to be processed.
-        mapping_type (str): The type of field mapping to be used for extraction.
-        product (str): The product that needs to be added to the extracted data.
+        - artifacts (list): A list of JAMA artifacts to be processed.
+        - mapping_type (str): The type of field mapping to be used for extraction.
+        - product (str): The product that needs to be added to the extracted data.
 
     Returns:
         list: A list of dictionaries containing the extracted and mapped data
-        for each ticket.
     """
 
     # Load field mappings from YAML file
@@ -69,7 +65,7 @@ def extract_field_mapping_data(data, mapping_type, product=None):
 
     # Extract data using field mappings
     extracted_data = []
-    for data_row in data:
+    for artifact in artifacts:
         extracted_document = {}
         for field_mapping in field_mappings:
             field_name = field_mapping["name"]
@@ -84,7 +80,7 @@ def extract_field_mapping_data(data, mapping_type, product=None):
                         transformer = globals().get(jama_field["transformer"], None)
 
                     extracted_document[field_name] = get_field_value(
-                        data_row, key, transformer
+                        artifact, key, transformer
                     )
 
         if product:
@@ -93,6 +89,9 @@ def extract_field_mapping_data(data, mapping_type, product=None):
         extracted_data.append(extracted_document)
 
     return extracted_data
+
+
+# pylint: enable=R0801
 
 
 def get_jama_requirements(level: str, product: str) -> pd.DataFrame:
@@ -107,18 +106,18 @@ def get_jama_requirements(level: str, product: str) -> pd.DataFrame:
         pd.DataFrame: A DataFrame containing Jama requirements.
     """
     if level == "L0":
-        data = get_l0_requirements()
+        jama_requirements = get_l0_requirements()
     elif level == "L1":
-        data = get_l1_requirements()
+        jama_requirements = get_l1_requirements()
     elif level == "L2":
-        data = get_l2_requirements(product)
+        jama_requirements = get_l2_requirements(product)
     else:
         raise ValueError(f"Unsupported level: {level}")
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from Jama.")
+    if jama_requirements is None:
+        raise ValueError("Failed to retrieve requirements from Jama.")
 
-    extracted_data = extract_field_mapping_data(data, "requirement")
+    extracted_data = extract_field_mapping_data(jama_requirements, "requirement")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -130,12 +129,12 @@ def get_jama_test_cases() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jama test cases.
     """
-    data = get_test_cases()
+    jama_test_cases = get_test_cases()
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from Jama.")
+    if jama_test_cases is None:
+        raise ValueError("Failed to retrieve test cases from Jama.")
 
-    extracted_data = extract_field_mapping_data(data, "test_case")
+    extracted_data = extract_field_mapping_data(jama_test_cases, "test_case")
     df = pd.DataFrame(extracted_data)
     return df
 
@@ -147,17 +146,24 @@ def get_jama_interfaces() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the Jama interfaces.
     """
-    data = get_interfaces()
+    jama_interfaces = get_interfaces()
 
-    if data is None:
-        raise ValueError("Failed to retrieve data from Jama.")
+    if jama_interfaces is None:
+        raise ValueError("Failed to retrieve interfaces from Jama.")
 
-    extracted_data = extract_field_mapping_data(data, "interfaces")
+    extracted_data = extract_field_mapping_data(jama_interfaces, "interfaces")
     df = pd.DataFrame(extracted_data)
     return df
 
 
-def update_jama_item(id, url):
+def update_jama_item(item_id, url):
+    """
+    Updates the jira url of an existing JAMA item.
+
+    Args:
+        item_id (int): The id of the jama item to be updated.
+        url (str): The url to be set for the jama item.
+    """
     item = get_item(id)
     item["fields"]["jira_url$1358"] = url
-    put_item(id, item)
+    put_item(item_id, item)
